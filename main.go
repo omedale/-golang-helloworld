@@ -38,6 +38,7 @@ import (
 	"math"
 	"math/cmplx"
 	"runtime"
+	"strings"
 )
 
 // var c, python, java bool
@@ -140,6 +141,221 @@ func deferFunction() {
 	fmt.Println("hello")
 }
 
+type Vertex struct {
+	X int
+	Y int
+}
+
+type Vertex2 struct {
+	X int
+	Y int
+}
+
+var (
+	v1 = Vertex2{1, 2} // has type Vertex
+	v2 = Vertex2{X: 1} // Y:0 is implicit
+	v3 = Vertex{}      // X:0 and Y:0
+	p2 = &Vertex{1, 2} // has type *Vertex, : The special prefix & returns a pointer to the struct value.
+)
+
+func vertex() {
+	v := Vertex{1, 2}
+	v.X = 4
+	fmt.Println(v.X)
+
+	// accessing value by pointers
+	t := Vertex{1, 2}
+	p := &t
+	p.X = 1e9
+	fmt.Println(t)
+
+	fmt.Println(v1, p2, v2, v3)
+}
+
+func arrays() {
+	var a [2]string
+	a[0] = "Hello"
+	a[1] = "World"
+	fmt.Println(a[0], a[1])
+	fmt.Println(a)
+
+	primes := [6]int{2, 3, 5, 7, 11, 13}
+	fmt.Println(primes)
+}
+
+//An array has a fixed size. A slice, on the other hand, is a dynamically-sized, flexible view into the elements of an array. In practice, slices are much more common than arrays.
+func slices() {
+	//A slice does not store any data, it just describes a section of an underlying array.
+	primes := [6]int{2, 3, 5, 7, 11, 13}
+
+	var s []int = primes[1:4]
+	fmt.Println(s)
+
+	names := [4]string{
+		"John",
+		"Paul",
+		"George",
+		"Ringo",
+	}
+	fmt.Println(names)
+
+	a := names[0:2]
+	b := names[1:3]
+	fmt.Println(a, b)
+
+	b[0] = "XXX"
+	fmt.Println(a, b)
+	fmt.Println(names)
+
+	q := []int{2, 3, 5, 7, 11, 13}
+	fmt.Println(q)
+
+	r := []bool{true, false, true, true, false, true}
+	fmt.Println(r)
+
+	st := []struct {
+		i int
+		b bool
+	}{
+		{2, true},
+		{3, false},
+		{5, true},
+		{7, true},
+		{11, false},
+		{13, true},
+	}
+	fmt.Println(st)
+}
+
+func slicesDefaults() {
+	s := []int{2, 3, 5, 7, 11, 13}
+
+	s = s[1:4]
+	fmt.Println(s)
+
+	s = s[:2]
+	fmt.Println(s)
+
+	s = s[1:]
+	fmt.Println(s)
+
+	s = append(s, 4, 5)
+}
+
+func emptySliceIsNil() {
+	var s []int
+	fmt.Println(s, len(s), cap(s))
+	if s == nil {
+		fmt.Println("nil!")
+	}
+}
+
+//Slices can be created with the built-in make function; this is how you create dynamically-sized arrays.
+//The make function allocates a zeroed array and returns a slice that refers to that array:
+func makeSlice() {
+	a := make([]int, 5)
+	printMakeSlice("a", a)
+
+	b := make([]int, 0, 5)
+	printMakeSlice("b", b)
+
+	c := b[:2]
+	printMakeSlice("c", c)
+
+	d := c[2:5]
+	printMakeSlice("d", d)
+}
+
+func printMakeSlice(s string, x []int) {
+	fmt.Printf("%s len=%d cap=%d %v\n",
+		s, len(x), cap(x), x)
+}
+
+func displayTictacboard() {
+	// Create a tic-tac-toe board.
+	board := [][]string{
+		[]string{"_", "_", "_"},
+		[]string{"_", "_", "_"},
+		[]string{"_", "_", "_"},
+	}
+
+	// The players take turns.
+	board[0][0] = "X"
+	board[2][2] = "O"
+	board[1][2] = "X"
+	board[1][0] = "O"
+	board[0][2] = "X"
+
+	for i := 0; i < len(board); i++ {
+		fmt.Printf("%s\n", strings.Join(board[i], " "))
+	}
+}
+
+var power = []int{1, 2, 4, 8, 16, 32, 64, 128}
+
+func useRangeWithArray() {
+	for i, v := range power {
+		fmt.Printf("2**%d = %d\n", i, v)
+	}
+
+	//You can skip the index or value by assigning to _.
+	powerr2 := make([]int, 10)
+	for i := range powerr2 {
+		powerr2[i] = 1 << uint(i) // == 2**i
+	}
+	for _, value := range powerr2 {
+		fmt.Printf("%d\n", value)
+	}
+}
+
+type MapVertex struct {
+	Lat, Long float64
+}
+
+var m map[string]MapVertex
+
+func maps() {
+	m = make(map[string]MapVertex)
+	m["Bell Labs"] = MapVertex{
+		40.68433, -74.39967,
+	}
+	fmt.Println(m["Bell Labs"])
+
+	m2 := map[string]MapVertex{
+		"Bell Labs": MapVertex{
+			40.68433, -74.39967,
+		},
+		"Google": MapVertex{
+			37.42202, -122.08408,
+		},
+	}
+	fmt.Println(m2)
+
+	//If the top-level type is just a type name, you can omit it from the elements of the literal.
+	var m3 = map[string]MapVertex{
+		"Bell Labs": {40.68433, -74.39967},
+		"Google":    {37.42202, -122.08408},
+	}
+	fmt.Println(m3)
+
+	mapValue := make(map[string]int)
+
+	mapValue["Answer"] = 42
+	fmt.Println("The value:", mapValue["Answer"])
+
+	mapValue["Answer"] = 48
+	fmt.Println("The value:", mapValue["Answer"])
+
+	delete(mapValue, "Answer")
+	fmt.Println("The value:", mapValue["Answer"])
+
+	// Test that a key is present with a two-value assignment:
+	// elem, ok = m[key]
+	// If key is in m, ok is true. If not, ok is false.
+	v, ok := mapValue["Answer"]
+	fmt.Println("The value:", v, "Present?", ok)
+}
+
 var (
 	ToBe   bool       = false
 	MaxInt uint64     = 1<<64 - 1
@@ -192,4 +408,13 @@ func main() {
 	switchCase()
 
 	deferFunction()
+
+	vertex()
+	arrays()
+	slices()
+	slicesDefaults()
+	makeSlice()
+	displayTictacboard()
+	useRangeWithArray()
+	maps()
 }
